@@ -1,19 +1,37 @@
 
+import { db } from '../db';
+import { projectsTable } from '../db/schema';
 import { type CreateProjectInput, type Project } from '../schema';
 
 export const createProject = async (input: CreateProjectInput): Promise<Project> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to create a new portfolio project and persist it in the database.
-    // This will be used to manage the projects section of the portfolio website.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+  try {
+    // Insert project record
+    const result = await db.insert(projectsTable)
+      .values({
         title: input.title,
         description: input.description,
         github_url: input.github_url,
         demo_url: input.demo_url,
         technologies: input.technologies,
-        featured: input.featured,
-        created_at: new Date(), // Placeholder date
-        updated_at: new Date() // Placeholder date
-    } as Project);
+        featured: input.featured
+      })
+      .returning()
+      .execute();
+
+    const project = result[0];
+    return {
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      github_url: project.github_url,
+      demo_url: project.demo_url,
+      technologies: project.technologies,
+      featured: project.featured,
+      created_at: project.created_at,
+      updated_at: project.updated_at
+    };
+  } catch (error) {
+    console.error('Project creation failed:', error);
+    throw error;
+  }
 };

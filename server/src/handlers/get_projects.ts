@@ -1,9 +1,23 @@
 
+import { db } from '../db';
+import { projectsTable } from '../db/schema';
 import { type Project } from '../schema';
+import { desc } from 'drizzle-orm';
 
 export const getProjects = async (): Promise<Project[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to fetch all portfolio projects from the database.
-    // This will populate the projects section of the portfolio website.
-    return Promise.resolve([]);
+  try {
+    const results = await db.select()
+      .from(projectsTable)
+      .orderBy(desc(projectsTable.created_at))
+      .execute();
+
+    return results.map(project => ({
+      ...project,
+      // Ensure technologies array is properly typed
+      technologies: project.technologies || []
+    }));
+  } catch (error) {
+    console.error('Failed to fetch projects:', error);
+    throw error;
+  }
 };

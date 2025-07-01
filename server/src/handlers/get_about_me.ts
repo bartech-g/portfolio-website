@@ -1,9 +1,25 @@
 
+import { db } from '../db';
+import { aboutMeTable } from '../db/schema';
 import { type AboutMe } from '../schema';
+import { desc } from 'drizzle-orm';
 
 export const getAboutMe = async (): Promise<AboutMe | null> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to fetch the about me content from the database.
-    // This will populate the about me section of the portfolio website.
-    return Promise.resolve(null);
+  try {
+    // Get the most recent about me entry
+    const result = await db.select()
+      .from(aboutMeTable)
+      .orderBy(desc(aboutMeTable.updated_at))
+      .limit(1)
+      .execute();
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Failed to fetch about me content:', error);
+    throw error;
+  }
 };
